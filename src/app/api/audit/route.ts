@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auditCode, type AuditResult } from "@/lib/gemini";
+import { auditCode, cleanAiError, type AuditResult } from "@/lib/gemini";
 import { auth } from "@/lib/auth";
 
 type GitHubRepo = {
@@ -184,7 +184,7 @@ ${projectContext}
 
     try { result = await auditCode(codeToAnalyze, repoName); }
     catch (err) {
-      aiError = err instanceof Error ? err.message : "Unknown error";
+      aiError = cleanAiError(err);
       console.error("AI audit failed, falling back to GitHub data:", aiError);
       result = computeFallback(githubData, readme);
       aiPowered = false;

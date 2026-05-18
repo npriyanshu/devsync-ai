@@ -116,7 +116,7 @@ export default function NewProject() {
             {result && (
               <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl overflow-hidden">
                 <div className={`px-5 py-2.5 flex items-center gap-2 text-xs font-medium ${result.aiPowered ? "bg-emerald-500/10 text-emerald-400 border-b border-emerald-500/20" : "bg-amber-500/10 text-amber-400 border-b border-amber-500/20"}`}>
-                  {result.aiPowered ? <><Bot className="w-3.5 h-3.5" />AI audit completed</> : <><Zap className="w-3.5 h-3.5" />Gemini AI unavailable{result.aiError ? ` (${result.aiError.slice(0, 80)})` : ""}</>}
+                  {result.aiPowered ? <><Bot className="w-3.5 h-3.5" />AI audit completed</> : <><Zap className="w-3.5 h-3.5" />Gemini AI unavailable{result.aiError ? ` (${result.aiError})` : ""}</>}
                 </div>
                 <div className="p-5 border-b border-white/[0.06] flex items-center justify-between">
                   <div><h2 className="font-semibold">{result.aiPowered ? "AI Audit" : "GitHub Analysis"}</h2><span className="text-xs text-white/40">{result.aiPowered ? "Gemini 2.5 Flash" : "Repo metadata"}</span></div>

@@ -14,7 +14,41 @@ export interface AuditResult {
   summary: string;
 }
 
+export function cleanAiError(err: unknown): string {
+  if (!(err instanceof Error)) return "Unknown error occurred";
+  const msg = err.message;
+  
+  // Extract HTTP status error if present, e.g. [403 Forbidden] or [429 Too Many Requests]
+  const statusMatch = msg.match(/\[(\d+\s+[^\]]+)\]\s*(.*)/);
+  if (statusMatch) {
+    const [, status, detail] = statusMatch;
+    let friendlyDetail = detail.trim();
+    
+    if (friendlyDetail.includes("API key not valid")) {
+      return "Invalid API Key. Please verify your GEMINI_API_KEY in the .env file.";
+    }
+    if (friendlyDetail.includes("unregistered callers")) {
+      return "API key not registered or missing. Please check your .env file and restart your server.";
+    }
+    if (friendlyDetail.includes("quota")) {
+      return "API rate limit exceeded. Please try again in a minute.";
+    }
+    return `${status}: ${friendlyDetail}`;
+  }
+
+  if (msg.includes("fetch failed")) {
+    return "Network connection failed. Please ensure you are online and not blocked by a proxy or firewall.";
+  }
+
+  // Remove long SDK boilerplate prefixes
+  return msg.replace(/^\[GoogleGenerativeAI Error\]:\s*Error fetching from\s+https?:\/\/[^\s:]+:\s*/i, "");
+}
+
 export async function auditCode(code: string, repoName: string): Promise<AuditResult> {
+  if (!process.env.GEMINI_API_KEY) {
+    throw new Error("GEMINI_API_KEY is not defined in the environment. Please add it to your .env file and restart your development server.");
+  }
+
   const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
   const prompt = [
